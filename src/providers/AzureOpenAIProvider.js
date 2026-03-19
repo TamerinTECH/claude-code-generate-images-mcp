@@ -143,7 +143,7 @@ export class AzureOpenAIProvider extends ImageProvider {
     }
 
     // Validate and normalize quality for the specific model
-    quality = validateQuality(quality, this.modelType);
+    const normalizedQuality = validateQuality(quality, this.modelType);
 
     // Convert and validate size
     const pixelSize = toPixels(size, this.modelType);
@@ -153,7 +153,7 @@ export class AzureOpenAIProvider extends ImageProvider {
       n: 1,
       size: pixelSize,
       output_format: outputFormat,
-      quality,
+      quality: normalizedQuality,
       output_compression: outputCompression,
     };
 
@@ -162,7 +162,7 @@ export class AzureOpenAIProvider extends ImageProvider {
     console.error('🎨 [Image Generation] Generating image...');
     console.error(`   Model: ${this.modelType} (${this.deployment})`);
     console.error(`   Size: ${pixelSize}`);
-    console.error(`   Quality: ${quality}`);
+    console.error(`   Quality: ${normalizedQuality}`);
     console.error(`   Prompt: ${prompt.substring(0, 100)}${prompt.length > 100 ? '...' : ''}`);
 
     try {
@@ -191,7 +191,7 @@ export class AzureOpenAIProvider extends ImageProvider {
         base64: b64,
         prompt: prompt,
         size: pixelSize,
-        quality,
+        quality: normalizedQuality,
         provider: 'azure-openai',
         modelType: this.modelType
       };

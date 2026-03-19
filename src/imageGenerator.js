@@ -126,7 +126,7 @@ export class ImageGenerator {
     const modelType = config.getModelType();
 
     // Validate and normalize quality for the specific model
-    quality = validateQuality(quality, modelType);
+    const normalizedQuality = validateQuality(quality, modelType);
 
     // Convert and validate size
     const pixelSize = toPixels(size, modelType);
@@ -136,7 +136,7 @@ export class ImageGenerator {
       n: 1,
       size: pixelSize,
       output_format: outputFormat,
-      quality,
+      quality: normalizedQuality,
       output_compression: outputCompression,
     };
 
@@ -145,7 +145,7 @@ export class ImageGenerator {
     console.error('🎨 [Image Generation] Generating image...');
     console.error(`   Model: ${modelType} (${config.deployment})`);
     console.error(`   Size: ${pixelSize}`);
-    console.error(`   Quality: ${quality}`);
+    console.error(`   Quality: ${normalizedQuality}`);
     console.error(`   Prompt: ${prompt.substring(0, 100)}${prompt.length > 100 ? '...' : ''}`);
 
     try {
@@ -174,7 +174,7 @@ export class ImageGenerator {
         base64: b64,
         prompt: prompt,
         size: pixelSize,
-        quality,
+        quality: normalizedQuality,
         modelType
       };
     } catch (error) {
