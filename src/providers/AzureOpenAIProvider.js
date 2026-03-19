@@ -53,6 +53,25 @@ function validateQuality(quality, modelType) {
  * Convert size shorthand to pixel dimensions
  */
 function toPixels(size, modelType = 'flux') {
+  if (modelType === 'gpt-image-1') {
+    // gpt-image-1 only supports these exact sizes
+    const gptSizeMap = {
+      'small': '1024x1024',
+      'medium': '1024x1024',
+      'large': '1536x1024',
+      'square': '1024x1024',
+      'portrait': '1024x1536',
+      'landscape': '1536x1024',
+    };
+    if (gptSizeMap[size]) return gptSizeMap[size];
+    // Validate custom sizes against allowed values
+    const validSizes = ['1024x1024', '1024x1536', '1536x1024'];
+    if (!validSizes.includes(size)) {
+      throw new Error('gpt-image-1 size must be "1024x1024", "1024x1536", or "1536x1024" (or use shortcuts: small, medium, large, square, portrait, landscape)');
+    }
+    return size;
+  }
+
   const sizeMap = {
     'small': '512x512',
     'medium': '1024x1024',
@@ -152,10 +171,14 @@ export class AzureOpenAIProvider extends ImageProvider {
       prompt,
       n: 1,
       size: pixelSize,
-      output_format: outputFormat,
       quality: normalizedQuality,
-      output_compression: outputCompression,
     };
+
+    // output_format and output_compression are Flux-specific
+    if (this.modelType === 'flux') {
+      payload.output_format = outputFormat;
+      payload.output_compression = outputCompression;
+    }
 
     const apiUrl = this.getApiUrl();
 
