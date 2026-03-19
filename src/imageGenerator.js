@@ -35,7 +35,8 @@ function validateFluxSize(size) {
 }
 
 /**
- * Validate quality parameter based on model type
+ * Normalize and validate quality parameter based on model type.
+ * Maps generic values ('standard'/'hd') to gpt-image-1 equivalents.
  */
 function validateQuality(quality, modelType) {
   if (modelType === 'flux') {
@@ -43,6 +44,11 @@ function validateQuality(quality, modelType) {
       throw new Error('Flux quality must be "standard" or "hd"');
     }
   } else if (modelType === 'gpt-image-1') {
+    // Map generic quality values to gpt-image-1 equivalents
+    const qualityMap = { 'standard': 'medium', 'hd': 'high' };
+    if (qualityMap[quality]) {
+      quality = qualityMap[quality];
+    }
     if (!['low', 'medium', 'high'].includes(quality)) {
       throw new Error('gpt-image-1 quality must be "low", "medium", or "high"');
     }
@@ -119,8 +125,8 @@ export class ImageGenerator {
     // Detect model type
     const modelType = config.getModelType();
 
-    // Validate quality for the specific model
-    validateQuality(quality, modelType);
+    // Validate and normalize quality for the specific model
+    quality = validateQuality(quality, modelType);
 
     // Convert and validate size
     const pixelSize = toPixels(size, modelType);
